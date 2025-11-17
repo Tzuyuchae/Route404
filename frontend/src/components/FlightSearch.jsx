@@ -1,60 +1,88 @@
 import React, { useState, useEffect } from "react";
+import "../css/FlightSearch.css";
+import FlightResults from "./FlightResults"; // <-- ADD THIS IMPORT
 
 export default function FlightSearch({ defaultDeparture = "", defaultArrival = "" }) {
-  const [tripType, setTripType] = useState("oneway"); // 'oneway' or 'roundtrip'
+  const [tripType, setTripType] = useState("oneway");
   const [departure, setDeparture] = useState(defaultDeparture);
   const [arrival, setArrival] = useState(defaultArrival);
   const [departureDate, setDepartureDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [flights, setFlights] = useState(null);
+  const [error, setError] = useState(null);
 
-  // If defaults change (like coming from QuickSearch), sync them
   useEffect(() => {
     setDeparture(defaultDeparture);
     setArrival(defaultArrival);
   }, [defaultDeparture, defaultArrival]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!departure || !arrival || !departureDate) {
       alert("Please fill out all required fields.");
       return;
     }
 
-    console.log({
-      tripType,
-      departure,
-      arrival,
-      departureDate,
-      returnDate: tripType === "roundtrip" ? returnDate : null,
-    });
+    if (tripType === "roundtrip" && !returnDate) {
+      alert("Please select a return date for a round-trip.");
+      return;
+    }
 
-    alert("Search submitted! (Console shows details)");
+    setLoading(true);
+    setError(null);
+    setFlights(null);
+
+    try {
+      const res = await fetch("/api/flights/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tripType,
+          departure,
+          arrival,
+          departureDate,
+          returnDate: tripType === "roundtrip" ? returnDate : undefined,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch flights");
+
+      const data = await res.json();
+      setFlights(data); 
+    } catch (err) {
+      console.error(err);
+      setError("Error fetching flights. Try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="flight-search">
       <h2>Search Flights</h2>
 
+      {/* SEARCH FORM */}
       <form className="flight-form" onSubmit={handleSubmit}>
-        {/* Trip Type Toggle */}
+        
+        {/* Trip Type */}
         <div className="trip-type">
           <label>
             <input
               type="radio"
-              value="oneway"
               checked={tripType === "oneway"}
               onChange={() => setTripType("oneway")}
             />
-            One Way
+            &nbsp;One-Way
           </label>
           <label>
             <input
               type="radio"
-              value="roundtrip"
               checked={tripType === "roundtrip"}
               onChange={() => setTripType("roundtrip")}
             />
-            Round Trip
+            &nbsp;Round-Trip
           </label>
         </div>
 
@@ -62,21 +90,21 @@ export default function FlightSearch({ defaultDeparture = "", defaultArrival = "
         <div className="airport-fields">
           <input
             type="text"
-            placeholder="Departure Airport"
+            placeholder="Departure (e.g. DEN)"
             value={departure}
-            onChange={(e) => setDeparture(e.target.value)}
+            onChange={(e) => setDeparture(e.target.value.toUpperCase())}
             required
           />
           <input
             type="text"
-            placeholder="Destination Airport"
+            placeholder="Destination (e.g. JFK)"
             value={arrival}
-            onChange={(e) => setArrival(e.target.value)}
+            onChange={(e) => setArrival(e.target.value.toUpperCase())}
             required
           />
         </div>
 
-        {/* Date Inputs */}
+        {/* Dates */}
         <div className="date-fields">
           <div>
             <label>Departure Date</label>
@@ -100,9 +128,20 @@ export default function FlightSearch({ defaultDeparture = "", defaultArrival = "
             </div>
           )}
         </div>
-
-        <button type="submit" className="search-btn">Search Flights</button>
+        <button type="submit" className="search-btn" disabled={loading}>
+          {loading ? "Searching..." : "Search Flights"}
+        </button>
       </form>
+
+      {/* RESULTS */}
+      <div className="flight-results">
+        {loading && <p>Loading...</p>}
+        {error && <p className="error-text">{error}</p>}
+
+        {/* 🔥 Replace raw JSON with BEAUTIFUL CARDS */}
+        {flights && <FlightResults data={flights} />}
+      </div>
+
     </div>
   );
 }

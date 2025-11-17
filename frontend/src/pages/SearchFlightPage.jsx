@@ -1,19 +1,24 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
-import Layout from "../components/Layout";
-import FlightSearch from "../components/FlightSearch";
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import Layout from '../components/Layout';
+import FlightSearch from '../components/FlightSearch';
+import FlightResults from '../components/FlightResults';
 
 export default function SearchFlightsPage() {
+  const [results, setResults] = useState(null);
   const location = useLocation();
-
-  // Retrieve any state passed via navigate()
-  const { departure = "", arrival = "" } = location.state || {};
+  const { departure = '', arrival = '' } = location.state || {};
 
   return (
     <Layout>
       <div className="search-page">
-        <h1 className="search-title">Find Your Perfect Flight ✈️</h1>
-        <FlightSearch defaultDeparture={departure} defaultArrival={arrival} />
+        <h1 className="search-title">Find Your Perfect Flight <span className="emoji">✈️</span></h1>
+        <FlightSearch
+          defaultDeparture={departure}
+          defaultArrival={arrival}
+          onSearchResults={setResults}
+        />
+        {results && <FlightResults data={results} />}
       </div>
     </Layout>
   );

@@ -1,17 +1,21 @@
-const express = require("express");
-const cors = require("cors");
+import dotenv from "dotenv";
+dotenv.config(); // 🔥 Load .env BEFORE anything else
+
+import express from "express";
+import cors from "cors";
+import flightRoutes from "./routes/flightRoutes.js";
+
 const app = express();
+
 // Middleware
 app.use(cors());
-// Allows frontend to access backend
 app.use(express.json());
-// Test API endpoint
-app.get("/api/test", (req, res) => {
-    const htmlContent = ` <div style="color: blue; font-family: Arial;">
-            <h1>Welcome to the Store Dashboard!</h1>
-            <p>This HTML is served from the backend.</p>
-        </div>`;
-    res.send(htmlContent);
-});
-//start the server and listen on the Specified port
-app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
+
+// Routes
+app.use("/api/flights", flightRoutes);
+
+// Server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () =>
+  console.log(`✅ Server running on http://localhost:${PORT}`)
+);
