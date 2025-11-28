@@ -11,8 +11,6 @@ import savedRoutes from "./routes/savedRoutes.js";
 const app = express();
 
 // Middleware
-import cors from "cors";
-
 app.use(cors({
   origin: [
     "http://localhost:5173",
