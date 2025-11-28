@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import "../css/FlightSearch.css";
 import FlightResults from "./FlightResults"; // <-- ADD THIS IMPORT
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 export default function FlightSearch({ defaultDeparture = "", defaultArrival = "" }) {
   const [tripType] = useState("oneway");
   const [departure, setDeparture] = useState(defaultDeparture);
@@ -29,7 +31,7 @@ export default function FlightSearch({ defaultDeparture = "", defaultArrival = "
     setFlights(null);
 
     try {
-      const res = await fetch("/api/flights/search", {
+      const res = await fetch(`${API_BASE}/api/flights/search`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
