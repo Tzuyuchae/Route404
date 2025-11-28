@@ -57,8 +57,8 @@ const LoginPage = () => {
       // Redirect only when login (not register) and backend says success
       if (!isRegister && res.data.success) {
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("username", email); 
-        login(email); 
+        localStorage.setItem("username", res.data.username);
+        login(res.data.username);
         navigate("/");
         return;
       }
