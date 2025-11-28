@@ -14,7 +14,8 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://route404-07gf.onrender.com" //FrontendURL
+    "https://route404-07gf.onrender.com", // frontend
+    "https://route404.onrender.com"       // backend (⚠️ missing before)
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
