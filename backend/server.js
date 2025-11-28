@@ -11,11 +11,15 @@ import savedRoutes from "./routes/savedRoutes.js";
 const app = express();
 
 // Middleware
+import cors from "cors";
+
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://route404.onrender.com"
+    "https://route404-07gf.onrender.com" //FrontendURL
   ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 }));
 app.use(express.json());
