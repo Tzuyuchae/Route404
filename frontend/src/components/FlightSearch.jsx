@@ -31,7 +31,7 @@ export default function FlightSearch({ defaultDeparture = "", defaultArrival = "
     setFlights(null);
 
     try {
-      const res = await fetch(`${API_BASE}/api/flights/search`, {
+      const res = await fetch(`${API_BASE}/flights/search`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
