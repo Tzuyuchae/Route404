@@ -18,7 +18,7 @@ export default function SearchFlightsPage() {
           defaultArrival={arrival}
           onSearchResults={setResults}
         />
-        {results && <FlightResults data={results} />}
+        {results?.flights?.length > 0 && <FlightResults data={results} />}
       </div>
     </Layout>
   );

@@ -9,11 +9,12 @@
 
 /* CARD */
 .dark-card {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px);
   border-radius: 18px;
   padding: 22px;
   border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
   color: white;
 }
 
@@ -25,10 +26,43 @@
 }
 
 /* HEADER ROW */
+.left-fixed-column {
+  width: 180px; /* fixed width for perfect alignment */
+  display: flex;
+  align-items: center;
+}
+
 .header-row .airline-left {
   display: flex;
   gap: 14px;
   align-items: center;
+}
+
+.stacked-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.airline-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: -2px;
+}
+
+.airline-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.airline-price {
+  font-size: 22px;
+  font-weight: 700;
+  color: #4db7ff;
+  margin-top: -2px;
 }
 
 .airline-logo {
@@ -44,110 +78,151 @@
   font-size: 12px;
 }
 
-.price-right {
-  text-align: right;
-}
-
-.price {
-  margin: 0;
-  font-size: 28px;
-  color: #4db7ff;
-}
-
 .duration-small {
   font-size: 13px;
   opacity: 0.7;
+}
+.duration-only span {
+  white-space: nowrap; /* ensure total duration stays on a single line */
 }
 
 /* TIMELINE ROW */
 .timeline-row {
   margin-top: 20px;
   gap: 24px;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex: 1;
+  justify-content: center;
 }
 
 .airport-block {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .airport-block h4 {
   margin: 0;
-  font-size: 22px;
+  font-size: 20px;
+  letter-spacing: 0.5px;
 }
 
 .airport-block p {
   margin: 2px 0;
+  white-space: nowrap; /* keep date on one line and time on one line */
+  line-height: 1.2;
 }
 
 .timeline-arrow {
   font-size: 24px;
-  opacity: 0.7;
-}
-
-.co2-block {
-  text-align: right;
-}
-
-.eco-green {
-  color: #4dff88;
-  font-weight: 700;
-}
-
-.eco-red {
-  color: #ff5a5a;
-  font-weight: 700;
+  opacity: 0.5;
 }
 
 /* EXPAND BUTTON */
 .expand-btn {
-  background: rgba(255,255,255,0.15);
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 8px 14px;
+  border-radius: 8px;
   color: white;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.2s ease;
+}
+.expand-btn:hover {
+  background: rgba(255,255,255,0.22);
+  transform: translateY(-2px);
 }
 
-.expand-btn:hover {
-  background: rgba(255,255,255,0.25);
+.expand-btn-wrapper {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-start;
+  width: 180px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* COLLAPSE AREA */
-.legs-collapse {
+
+/* Added new simplified connections container */
+.connections-wrapper {
   margin-top: 18px;
-  padding-top: 16px;
+  padding: 18px;
   border-top: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  border-radius: 14px;
+
+  /* FORCE BELOW — prevents side-by-side layout */
+  width: 100%;
+  flex-basis: 100%;
+  flex-grow: 0;
+  align-self: stretch;
+
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
-.leg-item {
-  background: rgba(255,255,255,0.07);
-  padding: 14px;
+.connection-item {
+  background: rgba(255,255,255,0.08);
+  padding: 16px;
   border-radius: 12px;
-}
-
-.leg-top {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid rgba(255,255,255,0.12);
 }
 
-.leg-tags {
-  display: flex;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.tag {
-  background: rgba(0,150,255,0.25);
-  padding: 5px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-}
-
-.warning {
-  color: #ff5a5a;
+.connection-item strong {
+  font-size: 16px;
+  letter-spacing: 0.4px;
   font-weight: 600;
-  margin-top: 10px;
+}
+
+.connection-item p {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.connection-item span {
+  font-size: 14px;
+  opacity: 0.65;
+}
+
+/* ACTION BUTTONS WRAPPER */
+.action-buttons-wrapper {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end; /* aligns both buttons to the right for consistency */
+  width: 100%;
+}
+
+/* SAVE BUTTON */
+.save-flight-btn {
+  background: rgba(77, 183, 255, 0.25);
+  border: 1px solid rgba(77, 183, 255, 0.45);
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: #4db7ff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.save-flight-btn:hover:not(:disabled) {
+  background: rgba(77, 183, 255, 0.35);
+  transform: translateY(-2px);
+}
+
+.save-flight-btn:disabled {
+  background: rgba(100, 255, 150, 0.25);
+  border-color: rgba(100, 255, 150, 0.45);
+  color: #6bffa1;
+  cursor: default;
 }

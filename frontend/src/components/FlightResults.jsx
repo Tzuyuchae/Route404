@@ -1,10 +1,57 @@
 import React, { useState } from "react";
 import "../css/FlightResults.css";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 
 export default function FlightResults({ data }) {
 
+  const { username } = useAuth();
+  const [savedFlights, setSavedFlights] = useState([]);
+
+  useEffect(() => {
+    if (!username) return;
+    axios
+      .get(`http://localhost:5000/api/saved-flights/${username}`)
+      .then((res) => setSavedFlights(res.data))
+      .catch((err) => console.error(err));
+  }, [username]);
+
   // ✅ Hook must ALWAYS run before any returns
   const [openIndex, setOpenIndex] = useState(null);
+
+  const isFlightSaved = (flight) => {
+    const firstLeg = flight.flights[0];
+    const lastLeg = flight.flights[flight.flights.length - 1];
+
+    return savedFlights.some((saved) => {
+      const sFirst = saved.flightData.flights[0];
+      const sLast = saved.flightData.flights[saved.flightData.flights.length - 1];
+
+      return (
+        sFirst.departure_airport.time === firstLeg.departure_airport.time &&
+        sLast.arrival_airport.time === lastLeg.arrival_airport.time &&
+        saved.flightData.total_duration === flight.total_duration
+      );
+    });
+  };
+
+  const saveFlight = async (flight) => {
+    if (!username) return alert("You must be logged in to save flights.");
+    if (isFlightSaved(flight)) return alert("This flight is already saved.");
+
+    try {
+      await axios.post("http://localhost:5000/api/saved-flights", {
+        username,
+        flightData: flight,
+      });
+      setSavedFlights((prev) => [...prev, { username, flightData: flight }]);
+      alert("Flight saved!");
+    } catch (err) {
+      console.error(err);
+      alert("Couldn't save flight.");
+    }
+  };
 
   // Now safe to early return
   if (!data || !data.flights || data.flights.length === 0) {
@@ -18,111 +65,93 @@ export default function FlightResults({ data }) {
     <div className="flights-wrapper">
       {flights.map((flight, index) => {
         const firstLeg = flight.flights[0];
+        const lastLeg = flight.flights[flight.flights.length - 1];
         const isOpen = openIndex === index;
 
         return (
-          <div key={index} className="flight-card dark-card">
+          <div key={index} className="flight-item">
+            {/* MAIN FLIGHT CARD */}
+            <div className="flight-card dark-card">
 
-            {/* TOP ROW */}
-            <div className="row header-row">
-              <div className="airline-left">
-                <img
-                  src={firstLeg.airline_logo}
-                  alt={firstLeg.airline}
-                  className="airline-logo"
-                />
-                <div className="airline-text">
-                  <h3>{firstLeg.airline}</h3>
-                  <span className="trip-pill">{flight.type}</span>
+              {/* TOP ROW */}
+              <div className="row header-row">
+                <div className="left-fixed-column">
+                  <div className="airline-left stacked-left">
+                    <img
+                      src={firstLeg.airline_logo}
+                      alt={firstLeg.airline}
+                      className="airline-logo"
+                    />
+
+                    <div className="airline-meta">
+                      <div className="airline-name">{firstLeg.airline}</div>
+                      <div className="airline-price">${flight.price}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="price-right">
-                <h2 className="price">${flight.price}</h2>
-                <span className="duration-small">{flight.total_duration} min</span>
+              {/* SIMPLE TIMELINE */}
+              <div className="row timeline-row">
+                <div className="airport-block">
+                  <h4>{firstLeg.departure_airport.id}</h4>
+                  <p>{firstLeg.departure_airport.time}</p>
+                </div>
+
+                <div className="timeline-arrow">→</div>
+
+                <div className="airport-block">
+                  <h4>{lastLeg.arrival_airport.id}</h4>
+                  <p>{lastLeg.arrival_airport.time}</p>
+                </div>
+
+                <div className="duration-only">
+                  <span>
+                    {Math.floor(flight.total_duration / 60)}h{" "}
+                    {flight.total_duration % 60}m
+                  </span>
+                </div>
               </div>
-            </div>
 
-            {/* TIMELINE ROW */}
-            <div className="row timeline-row">
-              <div className="airport-block">
-                <h4>{firstLeg.departure_airport.id}</h4>
-                <p>{firstLeg.departure_airport.time}</p>
-                <span>{firstLeg.departure_airport.name}</span>
-              </div>
+              {/* Combined Expand and Save Buttons */}
+              <div className="action-buttons-wrapper">
+                {flight.flights.length > 1 && (
+                  <button
+                    className="expand-btn"
+                    onClick={() => setOpenIndex(isOpen ? null : index)}
+                  >
+                    {isOpen ? "Hide connections" : "Show connections"}
+                  </button>
+                )}
 
-              <div className="timeline-arrow">→</div>
-
-              <div className="airport-block">
-                <h4>{firstLeg.arrival_airport.id}</h4>
-                <p>{firstLeg.arrival_airport.time}</p>
-                <span>{firstLeg.arrival_airport.name}</span>
-              </div>
-
-              <div className="co2-block">
-                <p>{flight.carbon_emissions.this_flight.toLocaleString()} g CO₂</p>
-                <span
-                  className={
-                    flight.carbon_emissions.difference_percent <= 0
-                      ? "eco-green"
-                      : "eco-red"
-                  }
+                <button
+                  className="save-flight-btn"
+                  disabled={isFlightSaved(flight)}
+                  onClick={() => saveFlight(flight)}
                 >
-                  {flight.carbon_emissions.difference_percent}% vs typical
-                </span>
+                  {isFlightSaved(flight) ? "✔ Saved" : "⭐ Save"}
+                </button>
               </div>
-
-              {/* Expand Button */}
-              <button
-                className="expand-btn"
-                onClick={() =>
-                  setOpenIndex(isOpen ? null : index)
-                }
-              >
-                {isOpen ? "Hide details" : "Show details"}
-              </button>
             </div>
 
-            {/* COLLAPSIBLE SECTION */}
+            {/* COLLAPSIBLE CONNECTIONS BELOW CARD */}
             {isOpen && (
-              <div className="legs-collapse">
+              <div className="connections-wrapper full-width">
                 {flight.flights.map((leg, legIndex) => (
-                  <div key={legIndex} className="leg-item">
-
-                    <div className="leg-top">
-                      <strong>
-                        {leg.departure_airport.id} → {leg.arrival_airport.id}
-                      </strong>
-                      <span>{leg.duration} min</span>
-                    </div>
-
-                    <p className="leg-sub">
-                      Flight {leg.flight_number} • {leg.airplane}
+                  <div key={legIndex} className="connection-item">
+                    <strong>
+                      {leg.departure_airport.id} → {leg.arrival_airport.id}
+                    </strong>
+                    <p>
+                      {leg.departure_airport.time} — {leg.arrival_airport.time}
                     </p>
-
-                    <div className="leg-tags">
-                      <span className="tag">{leg.travel_class}</span>
-                      <span className="tag">Legroom: {leg.legroom}</span>
-                    </div>
-
-                    <ul className="leg-features">
-                      {leg.extensions?.map((ext, j) => (
-                        <li key={j}>{ext}</li>
-                      ))}
-                    </ul>
-
-                    {leg.often_delayed_by_over_30_min && (
-                      <p className="warning">⚠️ Often delayed over 30 minutes</p>
-                    )}
-
-                    {leg.overnight && (
-                      <p className="warning">🌙 Overnight flight</p>
-                    )}
+                    <span>
+                      {Math.floor(leg.duration / 60)}h {leg.duration % 60}m
+                    </span>
                   </div>
                 ))}
               </div>
             )}
-
           </div>
         );
       })}

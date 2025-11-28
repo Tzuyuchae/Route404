@@ -3,11 +3,10 @@ import "../css/FlightSearch.css";
 import FlightResults from "./FlightResults"; // <-- ADD THIS IMPORT
 
 export default function FlightSearch({ defaultDeparture = "", defaultArrival = "" }) {
-  const [tripType, setTripType] = useState("oneway");
+  const [tripType] = useState("oneway");
   const [departure, setDeparture] = useState(defaultDeparture);
   const [arrival, setArrival] = useState(defaultArrival);
   const [departureDate, setDepartureDate] = useState("");
-  const [returnDate, setReturnDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [flights, setFlights] = useState(null);
   const [error, setError] = useState(null);
@@ -25,11 +24,6 @@ export default function FlightSearch({ defaultDeparture = "", defaultArrival = "
       return;
     }
 
-    if (tripType === "roundtrip" && !returnDate) {
-      alert("Please select a return date for a round-trip.");
-      return;
-    }
-
     setLoading(true);
     setError(null);
     setFlights(null);
@@ -39,11 +33,10 @@ export default function FlightSearch({ defaultDeparture = "", defaultArrival = "
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          tripType,
+          tripType: "oneway",
           departure,
           arrival,
           departureDate,
-          returnDate: tripType === "roundtrip" ? returnDate : undefined,
         }),
       });
 
@@ -69,20 +62,11 @@ export default function FlightSearch({ defaultDeparture = "", defaultArrival = "
         {/* Trip Type */}
         <div className="trip-type">
           <label>
-            <input
-              type="radio"
+            <label
               checked={tripType === "oneway"}
-              onChange={() => setTripType("oneway")}
+              onChange={() => {}}
             />
-            &nbsp;One-Way
-          </label>
-          <label>
-            <input
-              type="radio"
-              checked={tripType === "roundtrip"}
-              onChange={() => setTripType("roundtrip")}
-            />
-            &nbsp;Round-Trip
+            &nbsp;One-Way Flight!
           </label>
         </div>
 
@@ -115,32 +99,20 @@ export default function FlightSearch({ defaultDeparture = "", defaultArrival = "
               required
             />
           </div>
-
-          {tripType === "roundtrip" && (
-            <div>
-              <label>Return Date</label>
-              <input
-                type="date"
-                value={returnDate}
-                onChange={(e) => setReturnDate(e.target.value)}
-                required
-              />
-            </div>
-          )}
         </div>
         <button type="submit" className="search-btn" disabled={loading}>
           {loading ? "Searching..." : "Search Flights"}
         </button>
       </form>
 
-      {/* RESULTS */}
-      <div className="flight-results">
-        {loading && <p>Loading...</p>}
-        {error && <p className="error-text">{error}</p>}
-
-        {/* 🔥 Replace raw JSON with BEAUTIFUL CARDS */}
-        {flights && <FlightResults data={flights} />}
-      </div>
+      {/* RESULTS (Only show after search) */}
+      {(loading || error || (flights && flights.flights && flights.flights.length > 0)) && (
+        <div className="flight-results">
+          {loading && <p>Loading...</p>}
+          {error && <p className="error-text">{error}</p>}
+          {flights?.flights?.length > 0 && <FlightResults data={flights} />}
+        </div>
+      )}
 
     </div>
   );

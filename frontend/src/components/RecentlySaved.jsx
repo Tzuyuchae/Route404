@@ -1,24 +1,71 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function RecentlySaved() {
-  // mock data (pretend these are recent saved flights)
-  const recentFlights = [
-    { id: 1, route: "DEN → JFK", price: "$220", time: "7:45 AM" },
-    { id: 2, route: "LAX → ORD", price: "$185", time: "9:10 AM" },
-    { id: 3, route: "SEA → DFW", price: "$210", time: "12:30 PM" },
-  ];
+  const { username } = useAuth();
+  const navigate = useNavigate();
+  const [recentFlights, setRecentFlights] = useState([]);
+
+  // Fetch the 3 most recent saved flights
+  useEffect(() => {
+    if (!username) return;
+
+    axios
+      .get(`http://localhost:5000/api/saved-flights/${username}`)
+      .then((res) => {
+        const flights = res.data;
+
+        // Sort newest → oldest using savedAt timestamp
+        const sorted = flights.sort(
+          (a, b) => new Date(b.savedAt) - new Date(a.savedAt)
+        );
+
+        // Take the most recent 3
+        setRecentFlights(sorted.slice(0, 3));
+      })
+      .catch((err) => console.error(err));
+  }, [username]);
 
   return (
     <div className="recently-saved">
       <h2>Recently Saved Flights</h2>
+
       <div className="saved-list">
-        {recentFlights.map((flight) => (
-          <div key={flight.id} className="saved-card">
-            <h3>{flight.route}</h3>
-            <p>Departure: {flight.time}</p>
-            <p>Current Price: <strong>{flight.price}</strong></p>
-          </div>
-        ))}
+        {recentFlights.length === 0 && (
+          <p style={{ textAlign: "center", opacity: 0.7 }}>
+            No saved flights yet.
+          </p>
+        )}
+
+        {recentFlights.map((item) => {
+          const flight = item.flightData;
+          const firstLeg = flight.flights[0];
+          const lastLeg = flight.flights[flight.flights.length - 1];
+
+          return (
+            <div
+              key={item._id}
+              className="saved-card"
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/saved")}
+            >
+              <h3>
+                {firstLeg.departure_airport.id} → {lastLeg.arrival_airport.id}
+              </h3>
+
+              <p>
+                Departure: {firstLeg.departure_airport.time.split(" ")[0]}{" "}
+                {firstLeg.departure_airport.time.split(" ")[1]}
+              </p>
+
+              <p>
+                Saved Price: <strong>${flight.price}</strong>
+              </p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

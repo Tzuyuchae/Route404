@@ -2,9 +2,11 @@ import React from "react";
 import Layout from "../components/Layout";
 import RecentlySaved from "../components/RecentlySaved";
 import QuickSearch from "../components/QuickSearch";
+import { useAuth } from "../context/AuthContext";
 
 export default function HomePage() {
-  const userName = "Zane";
+  const { username } = useAuth();
+  const userName = username || "User";
 
   return (
     <Layout>
