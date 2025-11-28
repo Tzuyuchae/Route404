@@ -11,7 +11,13 @@ import savedRoutes from "./routes/savedRoutes.js";
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://route404.onrender.com"
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 
 //Connect to DB
@@ -25,5 +31,5 @@ app.use("/api/saved-flights", savedRoutes);
 // Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>
-  console.log(`✅ Server running on http://localhost:${PORT}`)
+  console.log(`✅ Server running on ${PORT}`)
 );

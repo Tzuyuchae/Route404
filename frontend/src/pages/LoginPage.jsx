@@ -4,6 +4,8 @@ import axios from "axios";
 import "../css/LoginPage.css"
 import { useAuth } from "../context/AuthContext";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,8 +44,8 @@ const LoginPage = () => {
 
     try {
       const endpoint = isRegister
-        ? "http://localhost:5000/api/auth/register"
-        : "http://localhost:5000/api/auth/login";
+        ? `${API_BASE}/auth/register`
+        : `${API_BASE}/auth/login`;
 
       const res = await axios.post(endpoint, {
         username: email,

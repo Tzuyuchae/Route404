@@ -4,6 +4,8 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 export default function FlightResults({ data }) {
 
   const { username } = useAuth();
@@ -12,7 +14,7 @@ export default function FlightResults({ data }) {
   useEffect(() => {
     if (!username) return;
     axios
-      .get(`http://localhost:5000/api/saved-flights/${username}`)
+      .get(`${API_BASE}/saved-flights/${username}`)
       .then((res) => setSavedFlights(res.data))
       .catch((err) => console.error(err));
   }, [username]);
@@ -41,7 +43,7 @@ export default function FlightResults({ data }) {
     if (isFlightSaved(flight)) return alert("This flight is already saved.");
 
     try {
-      await axios.post("http://localhost:5000/api/saved-flights", {
+      await axios.post(`${API_BASE}/saved-flights`, {
         username,
         flightData: flight,
       });

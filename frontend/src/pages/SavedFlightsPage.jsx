@@ -1,10 +1,10 @@
-
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import Layout from "../components/Layout";
 import "../css/FlightResults.css";
+
+const API_BASE = import.meta.env.VITE_API_URL;
 
 export default function SavedFlightsPage() {
   const { username } = useAuth();
@@ -16,7 +16,7 @@ export default function SavedFlightsPage() {
     if (!username) return;
 
     axios
-      .get(`http://localhost:5000/api/saved-flights/${username}`)
+      .get(`${API_BASE}/saved-flights/${username}`)
       .then((res) => setSavedFlights(res.data))
       .catch((err) => console.error(err));
   }, [username]);
@@ -24,7 +24,7 @@ export default function SavedFlightsPage() {
   // Delete a saved flight
   const deleteFlight = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/saved-flights/${id}`);
+      await axios.delete(`${API_BASE}/saved-flights/${id}`);
       setSavedFlights((prev) => prev.filter((f) => f._id !== id));
     } catch (error) {
       console.error(error);

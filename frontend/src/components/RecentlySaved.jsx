@@ -3,6 +3,8 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 export default function RecentlySaved() {
   const { username } = useAuth();
   const navigate = useNavigate();
@@ -13,7 +15,7 @@ export default function RecentlySaved() {
     if (!username) return;
 
     axios
-      .get(`http://localhost:5000/api/saved-flights/${username}`)
+      .get(`${API_BASE}/saved-flights/${username}`)
       .then((res) => {
         const flights = res.data;
 
